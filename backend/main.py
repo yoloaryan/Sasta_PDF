@@ -17,6 +17,10 @@ from rag import ask_question
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 
+FRONTEND_DIR = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend")
+)
+
 app = FastAPI(
     title="SastaPDF AI",
     version="1.0.0"
@@ -39,6 +43,7 @@ app.add_middleware(
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+# Serve uploaded PDFs
 app.mount(
     "/files",
     StaticFiles(directory=UPLOAD_DIR),
@@ -49,35 +54,18 @@ class ChatRequest(BaseModel):
     question: str
     document_id: str | None = None
 
-# Serve the frontend index.html for the root route
-FRONTEND_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend")
 
-@app.get("/")
-def root():
-    index_path = os.path.join(FRONTEND_DIR, "index.html")
-    if os.path.exists(index_path):
-        return FileResponse(index_path)
-    return {"status": "online", "message": "SastaPDF AI is running"}
-
-# Mount frontend static assets (CSS, JS, images)
-if os.path.exists(FRONTEND_DIR):
-    app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="frontend")
+# ── API Routes ──────────────────────────────────────────────────────────────
 
 @app.post("/upload")
 async def upload_pdf(
     file: UploadFile = File(...)
 ):
     if not file.filename:
-        raise HTTPException(
-            status_code=400,
-            detail="No file selected."
-        )
+        raise HTTPException(status_code=400, detail="No file selected.")
 
     if not file.filename.lower().endswith(".pdf"):
-        raise HTTPException(
-            status_code=400,
-            detail="Only PDF files are supported."
-        )
+        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
 
     # 10MB File Size Limit Check
     file.file.seek(0, 2)
@@ -85,93 +73,68 @@ async def upload_pdf(
     file.file.seek(0)
 
     if file_size > MAX_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail="File size exceeds the 10MB limit."
-        )
+        raise HTTPException(status_code=400, detail="File size exceeds the 10MB limit.")
 
     filename = safe_filename(file.filename)
-    file_path = os.path.join(
-        UPLOAD_DIR,
-        filename
-    )
+    file_path = os.path.join(UPLOAD_DIR, filename)
 
     if os.path.exists(file_path):
         base, ext = os.path.splitext(filename)
         counter = 1
-
         while os.path.exists(file_path):
             filename = f"{base}_{counter}{ext}"
-            file_path = os.path.join(
-                UPLOAD_DIR,
-                filename
-            )
+            file_path = os.path.join(UPLOAD_DIR, filename)
             counter += 1
 
     with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(
-            file.file,
-            buffer
-        )
+        shutil.copyfileobj(file.file, buffer)
 
     try:
-        result = process_pdf(
-            file_path,
-            filename
-        )
+        result = process_pdf(file_path, filename)
     except Exception as e:
         if os.path.exists(file_path):
             os.remove(file_path)
+        raise HTTPException(status_code=500, detail=f"PDF processing failed: {e}")
 
-        raise HTTPException(
-            status_code=500,
-            detail=f"PDF processing failed: {e}"
-        )
+    return {"success": True, **result}
 
-    return {
-        "success": True,
-        **result
-    }
 
 @app.delete("/documents/{document_id}")
 def delete_document(document_id: str, filename: str | None = None):
     try:
         delete_pdf(filename, document_id)
-        return {
-            "success": True,
-            "message": f"Document {document_id} deleted successfully."
-        }
+        return {"success": True, "message": f"Document {document_id} deleted successfully."}
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to delete document: {e}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to delete document: {e}")
 
 
 @app.post("/chat")
 def chat(request: ChatRequest):
     if not request.question.strip():
-        raise HTTPException(
-            status_code=400,
-            detail="Question cannot be empty."
-        )
+        raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
     try:
-        result = ask_question(
-            request.question,
-            request.document_id
-        )
-
-        return {
-            "success": True,
-            **result
-        }
-
+        result = ask_question(request.question, request.document_id)
+        return {"success": True, **result}
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"RAG error: {e}"
-        )
+        raise HTTPException(status_code=500, detail=f"RAG error: {e}")
+
+
+@app.get("/health")
+def health():
+    return {"status": "online", "message": "SastaPDF AI is running"}
+
+
+# ── Frontend static files (MUST be mounted LAST, after all API routes) ──────
+# Mounting at "/" with html=True lets FastAPI serve index.html at "/"
+# and all CSS/JS/images at their original relative paths.
+if os.path.exists(FRONTEND_DIR):
+    app.mount(
+        "/",
+        StaticFiles(directory=FRONTEND_DIR, html=True),
+        name="frontend"
+    )
+
 
 if __name__ == "__main__":
     import uvicorn
