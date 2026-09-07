@@ -3,9 +3,9 @@ import sys
 
 # Override sqlite3 for ChromaDB compatibility on Vercel
 try:
-    __import__('pysqlite3')
-    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-except ImportError:
+    import pysqlite3
+    sys.modules['sqlite3'] = pysqlite3
+except Exception:
     pass
 
 # Ensure caches use writable /tmp in serverless environment
@@ -27,22 +27,25 @@ if os.environ.get("VERCEL"):
 else:
     CHROMA_PATH = os.path.join(BASE_DIR, "chroma-db")
 
-embeddings_model = FastEmbedEmbeddings(
-    model_name="BAAI/bge-small-en-v1.5"
-)
-
-vectorstore = Chroma(
-    persist_directory=CHROMA_PATH,
-    embedding_function=embeddings_model,
-    collection_name="sasta_pdf_documents",
-)
+_vectorstore = None
 
 def get_vectorstore():
-    return vectorstore
+    global _vectorstore
+    if _vectorstore is None:
+        embeddings_model = FastEmbedEmbeddings(
+            model_name="BAAI/bge-small-en-v1.5"
+        )
+        _vectorstore = Chroma(
+            persist_directory=CHROMA_PATH,
+            embedding_function=embeddings_model,
+            collection_name="sasta_pdf_documents",
+        )
+    return _vectorstore
 
 def delete_document_from_vectorstore(document_id: str):
     try:
-        vectorstore._collection.delete(where={"document_id": document_id})
+        store = get_vectorstore()
+        store._collection.delete(where={"document_id": document_id})
         return True
     except Exception as e:
         print(f"Error deleting document {document_id} from vectorstore: {e}")
