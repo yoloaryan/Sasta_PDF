@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>SastaPDF AI</title>
-<link rel="stylesheet" href="style.css?v=80">
+<link rel="stylesheet" href="style.css?v=85">
 </head>
 <body>
 
@@ -75,6 +75,7 @@
       <span id="zoomLevelText">100%</span>
       <button id="btnZoomIn" title="Zoom In">+</button>
       <button id="btnFullscreen" title="Toggle Fullscreen">⛶</button>
+      <a id="btnDownloadPdf" class="toolbar-action-btn" target="_blank" download title="Open / Download PDF" style="display: none;">📥</a>
     </div>
 
   </div>
@@ -137,6 +138,16 @@
       class="pdf-frame"
       hidden
     ></iframe>
+
+    <div class="mobile-pdf-card" id="mobilePdfCard" hidden>
+      <div class="mobile-pdf-icon">📄</div>
+      <h3 id="mobilePdfName">Document Loaded</h3>
+      <p id="mobilePdfMeta">Ready for AI questioning</p>
+      <div class="mobile-pdf-actions">
+        <a id="mobilePdfOpenBtn" href="#" target="_blank" class="mobile-pdf-btn primary">Open Full PDF ↗</a>
+        <button onclick="switchMobileTab('ai')" class="mobile-pdf-btn secondary">Ask AI Questions 💬</button>
+      </div>
+    </div>
 
   </div>
 
@@ -237,9 +248,25 @@
 </aside>
 
 </main>
+
+<nav class="mobile-bottom-nav" id="mobileBottomNav">
+  <button class="mob-nav-btn" id="mobTabDocs" onclick="switchMobileTab('docs')">
+    <span class="mob-icon">📁</span>
+    <span class="mob-label">Docs</span>
+  </button>
+  <button class="mob-nav-btn" id="mobTabPdf" onclick="switchMobileTab('pdf')">
+    <span class="mob-icon">📄</span>
+    <span class="mob-label">PDF</span>
+  </button>
+  <button class="mob-nav-btn active" id="mobTabAi" onclick="switchMobileTab('ai')">
+    <span class="mob-icon">💬</span>
+    <span class="mob-label">AI Chat</span>
+  </button>
+</nav>
+
 </div>
 
-<script src="script.js?v=80"></script>
+<script src="script.js?v=85"></script>
 
 </body>
 </html>

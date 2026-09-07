@@ -37,6 +37,36 @@ window.switchNavTab = function (tab) {
   }
 };
 
+window.switchMobileTab = function (tab) {
+  const mobTabDocs = document.getElementById("mobTabDocs");
+  const mobTabPdf = document.getElementById("mobTabPdf");
+  const mobTabAi = document.getElementById("mobTabAi");
+  const workspace = document.querySelector(".workspace");
+
+  [mobTabDocs, mobTabPdf, mobTabAi].forEach(btn => {
+    if (btn) btn.classList.remove("active");
+  });
+
+  if (workspace) {
+    workspace.classList.remove("mob-view-docs", "mob-view-pdf", "mob-view-ai");
+  }
+
+  if (tab === "docs") {
+    if (mobTabDocs) mobTabDocs.classList.add("active");
+    if (workspace) workspace.classList.add("mob-view-docs");
+  } else if (tab === "pdf") {
+    if (mobTabPdf) mobTabPdf.classList.add("active");
+    if (workspace) workspace.classList.add("mob-view-pdf");
+  } else if (tab === "ai") {
+    if (mobTabAi) mobTabAi.classList.add("active");
+    if (workspace) workspace.classList.add("mob-view-ai");
+    const questionInput = document.getElementById("questionInput");
+    if (questionInput && document.activeElement !== questionInput) {
+      setTimeout(() => questionInput.focus(), 150);
+    }
+  }
+};
+
 window.openUploader = function () {
   if (isUploading) {
     alert("A PDF upload is currently in progress. Please wait for it to complete.");
@@ -307,6 +337,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   renderDocumentList();
+
+  // Mobile layout initialization
+  if (window.innerWidth <= 768) {
+    window.switchMobileTab(documents.length > 0 ? "ai" : "docs");
+  }
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 768) {
+      const workspace = document.querySelector(".workspace");
+      if (workspace) {
+        workspace.classList.remove("mob-view-docs", "mob-view-pdf", "mob-view-ai");
+      }
+    } else {
+      const activeMobTab = document.querySelector(".mobile-bottom-nav .mob-nav-btn.active");
+      if (activeMobTab) {
+        if (activeMobTab.id === "mobTabDocs") window.switchMobileTab("docs");
+        else if (activeMobTab.id === "mobTabPdf") window.switchMobileTab("pdf");
+        else window.switchMobileTab("ai");
+      } else {
+        window.switchMobileTab(documents.length > 0 ? "ai" : "docs");
+      }
+    }
+  });
 });
 
 async function uploadPDF(file) {
@@ -448,15 +501,27 @@ function selectDocument(doc) {
   const selectedDocumentName = document.getElementById("selectedDocumentName");
   const welcomeDocument = document.getElementById("welcomeDocument");
   const pdfFrame = document.getElementById("pdfFrame");
+  const mobilePdfCard = document.getElementById("mobilePdfCard");
+  const mobilePdfName = document.getElementById("mobilePdfName");
+  const mobilePdfOpenBtn = document.getElementById("mobilePdfOpenBtn");
+  const mobilePdfMeta = document.getElementById("mobilePdfMeta");
+  const btnDownloadPdf = document.getElementById("btnDownloadPdf");
+
+  const fileUrl = `${API_URL}/files/${encodeURIComponent(doc.filename)}`;
 
   if (currentDocument) {
     currentDocument.innerHTML =
       `<span class="pdf-small-icon">PDF</span>
-       ${escapeHTML(doc.filename)}`;
+       <span class="doc-title-text">${escapeHTML(doc.filename)}</span>`;
   }
 
   if (selectedDocumentName) {
     selectedDocumentName.textContent = doc.filename;
+  }
+
+  if (btnDownloadPdf) {
+    btnDownloadPdf.href = fileUrl;
+    btnDownloadPdf.style.display = "inline-flex";
   }
 
   renderDocumentList();
@@ -464,7 +529,21 @@ function selectDocument(doc) {
   if (welcomeDocument) welcomeDocument.hidden = true;
   if (pdfFrame) {
     pdfFrame.hidden = false;
-    pdfFrame.src = `${API_URL}/files/${encodeURIComponent(doc.filename)}`;
+    pdfFrame.src = fileUrl;
+  }
+
+  if (mobilePdfCard) {
+    mobilePdfCard.hidden = false;
+    if (mobilePdfName) mobilePdfName.textContent = doc.filename;
+    if (mobilePdfOpenBtn) mobilePdfOpenBtn.href = fileUrl;
+    if (mobilePdfMeta) {
+      mobilePdfMeta.textContent = `${doc.pages || '?'} pages • ${doc.chunks || '?'} chunks ready`;
+    }
+  }
+
+  // On mobile devices, automatically switch to AI Chat so the user can immediately ask questions!
+  if (window.innerWidth <= 768) {
+    window.switchMobileTab("ai");
   }
 }
 

@@ -952,27 +952,443 @@ button {
   line-height: 1.4;
 }
 
-@media(max-width:1100px) {
+/* Toolbar action button (e.g. download/open button) */
+.toolbar-action-btn {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border-radius: 5px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.toolbar-action-btn:hover {
+  background: var(--item-hover);
+  color: var(--text);
+}
+
+/* Mobile PDF card fallback */
+.mobile-pdf-card {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 26px 18px;
+  margin: auto;
+  max-width: 330px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.mobile-pdf-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.mobile-pdf-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+
+.mobile-pdf-card p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.mobile-pdf-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.mobile-pdf-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.mobile-pdf-btn.primary {
+  background: var(--red);
+  color: #fff;
+}
+
+.mobile-pdf-btn.primary:hover {
+  background: var(--red-dark);
+}
+
+.mobile-pdf-btn.secondary {
+  background: var(--bg-workspace);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+/* Mobile Bottom Navigation (desktop hidden) */
+.mobile-bottom-nav {
+  display: none;
+}
+
+/* Tablet Responsive */
+@media (min-width: 769px) and (max-width: 1080px) {
   .workspace {
-    grid-template-columns: 210px 1fr;
+    grid-template-columns: 200px minmax(280px, 1fr) 320px;
   }
-  .ai-panel {
-    display: none;
+  .brand {
+    width: 200px;
+  }
+  .topbar {
+    padding: 0 14px;
   }
 }
 
-@media(max-width:700px) {
-  .sidebar {
+/* Mobile Phone Responsive (<= 768px) */
+@media (max-width: 768px) {
+  .app {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  /* Topbar scaling */
+  .topbar {
+    height: 52px;
+    min-height: 52px;
+    padding: 0 12px;
+    justify-content: space-between;
+  }
+
+  .brand {
+    width: auto;
+    gap: 8px;
+  }
+
+  .brand-logo {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    border-radius: 6px;
+  }
+
+  .brand-name {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .brand-subtitle {
     display: none;
   }
-  .workspace {
-    grid-template-columns: 1fr;
-  }
+
   .navigation {
     display: none;
   }
+
+  .top-right {
+    gap: 8px;
+  }
+
+  .round-button {
+    display: none;
+  }
+
+  .theme-toggle {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .avatar-img {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Workspace Layout on Mobile: Single panel active mode */
+  .workspace,
+  .workspace.view-mode-home,
+  .workspace.view-mode-documents,
+  .workspace.view-mode-ai {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+    height: calc(100dvh - 52px - 58px) !important;
+    max-height: calc(100dvh - 52px - 58px) !important;
+    min-height: 0 !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    position: relative !important;
+  }
+
+  /* Hide panels by default on mobile */
+  .sidebar,
+  .document-workspace,
+  .ai-panel {
+    display: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    border: none !important;
+  }
+
+  /* Tab 1: Docs */
+  .workspace.mob-view-docs .sidebar {
+    display: flex !important;
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  /* Tab 2: PDF Viewer */
+  .workspace.mob-view-pdf .document-workspace {
+    display: flex !important;
+    overflow: hidden;
+  }
+
+  /* Tab 3: AI Chat (active by default or when selected) */
+  .workspace.mob-view-ai .ai-panel,
+  .workspace:not(.mob-view-docs):not(.mob-view-pdf) .ai-panel {
+    display: flex !important;
+    overflow: hidden;
+  }
+
+  /* Mobile Bottom Navigation Bar */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 58px;
+    background: var(--bg-topbar);
+    border-top: 1px solid var(--border);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: space-around;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .mob-nav-btn {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 4px 0;
+  }
+
+  .mob-nav-btn .mob-icon {
+    font-size: 18px;
+    line-height: 1;
+    transition: transform 0.2s ease;
+  }
+
+  .mob-nav-btn.active {
+    color: var(--red);
+    font-weight: 700;
+  }
+
+  .mob-nav-btn.active .mob-icon {
+    transform: scale(1.15);
+  }
+
+  /* Document Toolbar on mobile */
+  .document-toolbar {
+    height: 46px;
+    min-height: 46px;
+    padding: 0 10px;
+  }
+
+  .current-document {
+    max-width: 60%;
+    font-size: 12px;
+  }
+
+  .doc-title-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #btnZoomOut, #btnZoomIn, #zoomLevelText, #btnZoomReset {
+    display: none;
+  }
+
+  .toolbar-actions button,
+  .toolbar-action-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  /* PDF Viewer on mobile */
+  .pdf-viewer {
+    padding: 8px;
+    position: relative;
+  }
+
+  .mobile-pdf-card:not([hidden]) {
+    display: flex;
+  }
+
+  .page-bar {
+    height: 40px;
+    min-height: 40px;
+    font-size: 11px;
+  }
+
+  /* AI Panel Header on mobile */
+  .ai-header {
+    min-height: 50px;
+    padding: 8px 12px;
+  }
+
+  .ai-logo-img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .ai-header h2 {
+    font-size: 14px;
+  }
+
+  .ai-header span {
+    font-size: 8px;
+  }
+
+  .selected-document {
+    margin: 8px 10px;
+    padding: 7px 10px;
+    gap: 8px;
+  }
+
+  .selected-document-icon {
+    width: 26px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .selected-document strong {
+    max-width: 220px;
+    font-size: 11px;
+  }
+
+  /* Suggestions: Horizontal scrollable chips */
+  .suggestions {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 6px 10px 8px;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .suggestions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .suggestions-title {
+    display: none;
+  }
+
+  .suggestions button {
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    flex-shrink: 0;
+    margin-bottom: 0;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 11px;
+  }
+
+  /* Chat container & input */
+  .chat-container {
+    padding: 10px 10px 6px;
+  }
+
+  .chat-input-wrapper {
+    margin: 4px 10px 4px;
+    padding: 4px 6px;
+  }
+
+  .chat-input-wrapper textarea {
+    font-size: 14px;
+    min-height: 34px;
+    padding: 6px;
+  }
+
+  .chat-input-wrapper button {
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+  }
+
+  .ai-disclaimer {
+    padding: 2px 10px 4px;
+    font-size: 8px;
+  }
+
+  .welcome-ai {
+    margin-top: 15px;
+    padding: 10px;
+  }
+
+  .welcome-ai-avatar {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 8px;
+  }
+
+  /* Features in welcome doc */
   .feature-row {
     flex-direction: column;
+    gap: 8px;
+  }
+
+  .welcome-document {
+    padding: 16px 12px;
+  }
+
+  .welcome-document h1 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .welcome-document p {
+    font-size: 12px;
+    margin-bottom: 16px;
   }
 }
 
