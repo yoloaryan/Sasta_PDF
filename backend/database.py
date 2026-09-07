@@ -1,13 +1,6 @@
 import os
-import sys
-
-# Ensure caches use a writable directory
-os.environ.setdefault("HF_HOME", os.path.join(os.path.dirname(os.path.abspath(__file__)), ".cache", "hf"))
-os.environ.setdefault("FASTEMBED_CACHE_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), ".cache", "fastembed"))
 
 from dotenv import load_dotenv
-from langchain_chroma import Chroma
-from langchain_community.embeddings import FastEmbedEmbeddings
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 dotenv_path = os.path.join(BASE_DIR, ".env")
@@ -31,8 +24,12 @@ _vectorstore = None
 def get_vectorstore():
     global _vectorstore
     if _vectorstore is None:
-        embeddings_model = FastEmbedEmbeddings(
-            model_name="BAAI/bge-small-en-v1.5"
+        from langchain_chroma import Chroma
+        from langchain_mistralai import MistralAIEmbeddings
+
+        embeddings_model = MistralAIEmbeddings(
+            model="mistral-embed",
+            mistral_api_key=os.environ.get("MISTRAL_API_KEY", "")
         )
         _vectorstore = Chroma(
             persist_directory=CHROMA_PATH,
