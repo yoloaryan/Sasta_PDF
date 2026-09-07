@@ -8,7 +8,10 @@ dotenv_path = os.path.join(BASE_DIR, ".env")
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 
-CHROMA_PATH = os.path.join(BASE_DIR, "chroma-db")
+if os.environ.get("VERCEL"):
+    CHROMA_PATH = "/tmp/chroma-db"
+else:
+    CHROMA_PATH = os.path.join(BASE_DIR, "chroma-db")
 
 embeddings_model = HuggingFaceEmbeddings(
     model_name="BAAI/bge-small-en-v1.5"
