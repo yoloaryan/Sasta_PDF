@@ -4,12 +4,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from database import get_vectorstore
 
 llm = ChatGroq(
-    model_name="llama3-70b-8192",
+    model_name="openai/gpt-oss-120b",
     temperature=0.2,
 )
 
-prompt = ChatPromptTemplate.from_messages([
-    ("system", """
+prompt = ChatPromptTemplate.from_messages([("system", """
 You are SastaPDF AI, an intelligent document assistant.
 
 Use ONLY the supplied document context.
@@ -21,9 +20,8 @@ Give a clear, useful answer. When possible, refer to page numbers.
 
 Document context:
 {context}
-"""),
-    ("human", "Question:\n{question}")
-])
+"""), ("human", "Question:\n{question}")])
+
 
 def ask_question(question: str, document_id: str | None = None):
     vectorstore = get_vectorstore()
@@ -37,10 +35,7 @@ def ask_question(question: str, document_id: str | None = None):
     if document_id:
         kwargs["filter"] = {"document_id": document_id}
 
-    docs = vectorstore.max_marginal_relevance_search(
-        question,
-        **kwargs
-    )
+    docs = vectorstore.max_marginal_relevance_search(question, **kwargs)
 
     if not docs:
         return {
@@ -51,13 +46,8 @@ def ask_question(question: str, document_id: str | None = None):
     context_parts = []
 
     for doc in docs:
-        page = doc.metadata.get(
-            "page_number",
-            doc.metadata.get("page", 0) + 1
-        )
-        context_parts.append(
-            f"[Page {page}]\n{doc.page_content}"
-        )
+        page = doc.metadata.get("page_number", doc.metadata.get("page", 0) + 1)
+        context_parts.append(f"[Page {page}]\n{doc.page_content}")
 
     context = "\n\n".join(context_parts)
 
@@ -72,14 +62,8 @@ def ask_question(question: str, document_id: str | None = None):
     seen = set()
 
     for doc in docs:
-        page = doc.metadata.get(
-            "page_number",
-            doc.metadata.get("page", 0) + 1
-        )
-        filename = doc.metadata.get(
-            "filename",
-            "Unknown"
-        )
+        page = doc.metadata.get("page_number", doc.metadata.get("page", 0) + 1)
+        filename = doc.metadata.get("filename", "Unknown")
 
         key = (filename, page)
 
@@ -88,12 +72,7 @@ def ask_question(question: str, document_id: str | None = None):
             sources.append({
                 "filename": filename,
                 "page": page,
-                "document_id": doc.metadata.get(
-                    "document_id"
-                ),
+                "document_id": doc.metadata.get("document_id"),
             })
 
-    return {
-        "answer": response.content,
-        "sources": sources
-    }
+    return {"answer": response.content, "sources": sources}
