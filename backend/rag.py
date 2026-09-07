@@ -1,8 +1,7 @@
-import os
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 
-from database import similarity_search
+from database import get_vectorstore
 
 llm = ChatGroq(
     model_name="llama-3.3-70b-versatile",
@@ -26,9 +25,22 @@ Document context:
     ("human", "Question:\n{question}")
 ])
 
-
 def ask_question(question: str, document_id: str | None = None):
-    docs = similarity_search(question, k=5, document_id=document_id)
+    vectorstore = get_vectorstore()
+
+    kwargs = {
+        "k": 5,
+        "fetch_k": 15,
+        "lambda_mult": 0.5,
+    }
+
+    if document_id:
+        kwargs["filter"] = {"document_id": document_id}
+
+    docs = vectorstore.max_marginal_relevance_search(
+        question,
+        **kwargs
+    )
 
     if not docs:
         return {
@@ -37,9 +49,15 @@ def ask_question(question: str, document_id: str | None = None):
         }
 
     context_parts = []
+
     for doc in docs:
-        page = doc["metadata"].get("page_number", 1)
-        context_parts.append(f"[Page {page}]\n{doc['text']}")
+        page = doc.metadata.get(
+            "page_number",
+            doc.metadata.get("page", 0) + 1
+        )
+        context_parts.append(
+            f"[Page {page}]\n{doc.page_content}"
+        )
 
     context = "\n\n".join(context_parts)
 
@@ -52,16 +70,27 @@ def ask_question(question: str, document_id: str | None = None):
 
     sources = []
     seen = set()
+
     for doc in docs:
-        page = doc["metadata"].get("page_number", 1)
-        filename = doc["metadata"].get("filename", "Unknown")
+        page = doc.metadata.get(
+            "page_number",
+            doc.metadata.get("page", 0) + 1
+        )
+        filename = doc.metadata.get(
+            "filename",
+            "Unknown"
+        )
+
         key = (filename, page)
+
         if key not in seen:
             seen.add(key)
             sources.append({
                 "filename": filename,
                 "page": page,
-                "document_id": doc["metadata"].get("document_id"),
+                "document_id": doc.metadata.get(
+                    "document_id"
+                ),
             })
 
     return {

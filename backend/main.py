@@ -3,7 +3,7 @@ import shutil
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -49,12 +49,19 @@ class ChatRequest(BaseModel):
     question: str
     document_id: str | None = None
 
+# Serve the frontend index.html for the root route
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "frontend")
+
 @app.get("/")
 def root():
-    return {
-        "status": "online",
-        "message": "SastaPDF AI is running"
-    }
+    index_path = os.path.join(FRONTEND_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"status": "online", "message": "SastaPDF AI is running"}
+
+# Mount frontend static assets (CSS, JS, images)
+if os.path.exists(FRONTEND_DIR):
+    app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="frontend")
 
 @app.post("/upload")
 async def upload_pdf(
@@ -169,9 +176,10 @@ def chat(request: ChatRequest):
 if __name__ == "__main__":
     import uvicorn
 
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run(
         "main:app",
-        host="127.0.0.1",
-        port=8000,
-        reload=True
+        host="0.0.0.0",
+        port=port,
+        reload=False
     )
