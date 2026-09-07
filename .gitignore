@@ -1,0 +1,27 @@
+# Environment & Virtual Env
+.env
+backend/.env
+.venv/
+env/
+venv/
+
+# Python Cache & Bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Databases & Uploaded Files
+backend/chroma-db/
+backend/uploads/
+chroma-db/
+uploads/
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+ehthumbs.db
+Thumbs.db

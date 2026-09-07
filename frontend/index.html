@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SastaPDF AI</title>
+<link rel="stylesheet" href="style.css?v=80">
+</head>
+<body>
+
+<div class="app">
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-logo">S</div>
+    <div>
+      <div class="brand-name">SastaPDF</div>
+      <div class="brand-subtitle">AI Document Workspace</div>
+    </div>
+  </div>
+
+  <nav class="navigation">
+    <button class="nav-button active" id="navHome" onclick="switchNavTab('home')">Home</button>
+    <button class="nav-button" id="navDocuments" onclick="switchNavTab('documents')">Documents</button>
+    <button class="nav-button" id="navAIAssistant" onclick="switchNavTab('ai')">AI Assistant</button>
+  </nav>
+
+  <div class="top-right">
+    <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode" aria-label="Toggle Dark/Light Mode">🌙</button>
+    <button class="round-button">?</button>
+    <img src="avatar.png" class="avatar-img" alt="User Avatar">
+  </div>
+</header>
+
+<main class="workspace">
+
+<aside class="sidebar">
+
+  <button class="upload-button" id="uploadButton" onclick="openUploader()">
+    <span class="plus">+</span> Upload PDF
+  </button>
+
+  <input type="file" id="fileInput" accept=".pdf,application/pdf" hidden>
+
+  <div class="sidebar-heading">YOUR DOCUMENTS</div>
+
+  <div id="documentList" class="document-list">
+    <div class="empty-documents">
+      <div class="empty-icon">📄</div>
+      <span>No documents uploaded</span>
+    </div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="storage-title">Local Workspace</div>
+    <div class="storage-description">
+      Your documents are processed and stored in ChromaDB.
+    </div>
+  </div>
+
+</aside>
+
+<section class="document-workspace">
+
+  <div class="document-toolbar">
+
+    <div class="current-document" id="currentDocument">
+      <span class="pdf-small-icon">PDF</span>
+      No document selected
+    </div>
+
+    <div class="toolbar-actions">
+      <button id="btnZoomReset" title="Reset Zoom">🔍</button>
+      <button id="btnZoomOut" title="Zoom Out">−</button>
+      <span id="zoomLevelText">100%</span>
+      <button id="btnZoomIn" title="Zoom In">+</button>
+      <button id="btnFullscreen" title="Toggle Fullscreen">⛶</button>
+    </div>
+
+  </div>
+
+  <div class="pdf-viewer" id="pdfViewer">
+
+    <div class="welcome-document" id="welcomeDocument">
+
+      <div class="large-pdf-icon">
+        <span>PDF</span>
+      </div>
+
+      <h1>Your document workspace</h1>
+
+      <p>
+        Upload a book, research paper, textbook,
+        or any PDF and ask questions using AI.
+      </p>
+
+      <button
+        class="primary-button"
+        id="welcomeUploadButton"
+        onclick="openUploader()"
+      >
+        Upload a PDF
+      </button>
+
+      <div class="feature-row">
+
+        <div class="feature">
+          <span>🧠</span>
+          <div>
+            <strong>AI-powered</strong>
+            <small>Ask questions</small>
+          </div>
+        </div>
+
+        <div class="feature">
+          <span>🔎</span>
+          <div>
+            <strong>Smart search</strong>
+            <small>Semantic retrieval</small>
+          </div>
+        </div>
+
+        <div class="feature">
+          <span>📚</span>
+          <div>
+            <strong>Multiple books</strong>
+            <small>Stored in ChromaDB</small>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <iframe
+      id="pdfFrame"
+      class="pdf-frame"
+      hidden
+    ></iframe>
+
+  </div>
+
+  <div class="page-bar">
+    <button id="btnPrevPage" title="Previous Page">‹</button>
+    <span id="pageBarText">PDF viewer</span>
+    <button id="btnNextPage" title="Next Page">›</button>
+  </div>
+
+</section>
+
+<aside class="ai-panel">
+
+  <div class="ai-header">
+
+    <div class="ai-title-container">
+
+      <img src="avatar.png" class="ai-logo-img" alt="AI Avatar">
+
+      <div>
+        <h2>AI Assistant</h2>
+        <span>Powered by SastaPDF AI</span>
+      </div>
+
+    </div>
+
+    <button class="more-button">⋯</button>
+
+  </div>
+
+  <div class="selected-document">
+
+    <div class="selected-document-icon">📄</div>
+
+    <div>
+      <small>CURRENT DOCUMENT</small>
+      <strong id="selectedDocumentName">None</strong>
+    </div>
+
+  </div>
+
+  <div class="suggestions">
+
+    <div class="suggestions-title">TRY ASKING</div>
+
+    <button onclick="askSuggestion('Summarize this document')">
+      ✨ Summarize this document
+    </button>
+
+    <button onclick="askSuggestion('What are the key concepts in this document?')">
+      🧠 What are the key concepts?
+    </button>
+
+    <button onclick="askSuggestion('Explain this document in simple language')">
+      💡 Explain it simply
+    </button>
+
+    <button onclick="askSuggestion('What are the most important things I should remember?')">
+      🎯 What should I remember?
+    </button>
+
+  </div>
+
+  <div class="chat-container" id="chatContainer">
+
+    <div class="welcome-ai">
+
+      <img src="avatar.png" class="welcome-ai-avatar" alt="AI Avatar">
+
+      <h3>Ask your document</h3>
+
+      <p>
+        I can summarize, explain, and answer questions
+        based on your uploaded PDF.
+      </p>
+
+    </div>
+
+  </div>
+
+  <div class="chat-input-wrapper">
+
+    <textarea
+      id="questionInput"
+      placeholder="Ask anything about this document..."
+      rows="1"
+    ></textarea>
+
+    <button onclick="sendQuestion()">↑</button>
+
+  </div>
+
+  <div class="ai-disclaimer">
+    AI-generated answers may contain mistakes.
+    Check the source document for important information.
+  </div>
+
+</aside>
+
+</main>
+</div>
+
+<script src="script.js?v=80"></script>
+
+</body>
+</html>
