@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import FastEmbedEmbeddings
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 dotenv_path = os.path.join(BASE_DIR, ".env")
@@ -13,7 +13,7 @@ if os.environ.get("VERCEL"):
 else:
     CHROMA_PATH = os.path.join(BASE_DIR, "chroma-db")
 
-embeddings_model = HuggingFaceEmbeddings(
+embeddings_model = FastEmbedEmbeddings(
     model_name="BAAI/bge-small-en-v1.5"
 )
 
