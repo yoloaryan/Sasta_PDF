@@ -1,4 +1,10 @@
 import os
+
+# Ensure caches use writable /tmp in serverless environment
+os.environ["HF_HOME"] = "/tmp/hf_home"
+os.environ["FASTEMBED_CACHE_PATH"] = "/tmp/fastembed_cache"
+os.environ["SENTENCE_TRANSFORMERS_HOME"] = "/tmp/st_home"
+
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_community.embeddings import FastEmbedEmbeddings

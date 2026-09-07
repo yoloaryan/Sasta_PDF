@@ -87,7 +87,13 @@ window.sendQuestion = async function () {
       })
     });
 
-    const data = await response.json();
+    const responseText = await response.text();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      throw new Error(`Server Error (${response.status}): ${responseText || 'Invalid server response'}`);
+    }
 
     removeMessage(loadingId);
 
@@ -125,7 +131,13 @@ window.deleteDocument = async function (documentId, event) {
       { method: "DELETE" }
     );
 
-    const data = await response.json();
+    const responseText = await response.text();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      throw new Error(`Server Error (${response.status}): ${responseText || 'Invalid server response'}`);
+    }
 
     if (!response.ok) {
       throw new Error(data.detail || "Failed to delete document on server.");
@@ -311,7 +323,13 @@ async function uploadPDF(file) {
       body: formData
     });
 
-    const data = await response.json();
+    const responseText = await response.text();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      throw new Error(`Server Error (${response.status}): ${responseText || 'Invalid server response'}`);
+    }
 
     if (!response.ok) {
       throw new Error(data.detail || "PDF processing failed on server.");

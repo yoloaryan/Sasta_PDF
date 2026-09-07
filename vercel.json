@@ -12,7 +12,7 @@
   ],
   "routes": [
     {
-      "src": "/(upload|chat|documents/.*|files/.*)",
+      "src": "/(upload|chat|documents.*|files.*)",
       "dest": "backend/main.py"
     },
     {
