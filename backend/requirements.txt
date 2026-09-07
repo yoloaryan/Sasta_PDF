@@ -11,3 +11,4 @@ langchain-groq
 chromadb
 fastembed
 pypdf
+pysqlite3-binary

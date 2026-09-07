@@ -1,4 +1,12 @@
 import os
+import sys
+
+# Override sqlite3 for ChromaDB compatibility on Vercel
+try:
+    __import__('pysqlite3')
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+except ImportError:
+    pass
 
 # Ensure caches use writable /tmp in serverless environment
 os.environ["HF_HOME"] = "/tmp/hf_home"
