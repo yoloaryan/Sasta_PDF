@@ -11,8 +11,8 @@ from ingestion import (
     process_pdf,
     safe_filename,
     delete_pdf,
-    UPLOAD_DIR
 )
+from database import UPLOAD_DIR
 from rag import ask_question
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
