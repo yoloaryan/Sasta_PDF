@@ -4,7 +4,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from database import get_vectorstore
 
 llm = ChatGroq(
-    model_name="openai/gpt-oss-120b",
+    model_name="llama-3.3-70b-versatile",
     temperature=0.2,
 )
 

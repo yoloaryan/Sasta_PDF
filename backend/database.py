@@ -27,6 +27,11 @@ if os.environ.get("VERCEL"):
 else:
     CHROMA_PATH = os.path.join(BASE_DIR, "chroma-db")
 
+os.makedirs("/tmp/hf_home", exist_ok=True)
+os.makedirs("/tmp/fastembed_cache", exist_ok=True)
+os.makedirs("/tmp/st_home", exist_ok=True)
+os.makedirs(CHROMA_PATH, exist_ok=True)
+
 _vectorstore = None
 
 def get_vectorstore():

@@ -37,6 +37,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 app.mount(
     "/files",
     StaticFiles(directory=UPLOAD_DIR),
