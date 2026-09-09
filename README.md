@@ -14,7 +14,25 @@
 
 > 🚀 **Experience it Live:** [https://sasta-pdf.onrender.com/](https://sasta-pdf.onrender.com/)
 
-**SastaPDF AI** is a modern, high-performance **Retrieval-Augmented Generation (RAG)** application designed for seamless PDF document interaction. Inspired by Adobe Acrobat's professional layout, it combines split-pane PDF viewing with ultra-low latency contextual question-answering powered by **Groq LPU inference** and **Mistral AI embeddings**.
+---
+
+## 📖 About The Project
+
+Modern PDF workflows are often frustrating. Traditional document readers are static and cumbersome, while many existing AI tools are either prohibitively expensive, sluggish, or prone to hallucinations that make citations untrustworthy.
+
+**SastaPDF AI** bridges this gap by delivering an **Adobe Acrobat-caliber workspace** coupled with an enterprise-grade, privacy-first **Retrieval-Augmented Generation (RAG)** pipeline — accessible directly in the browser with sub-second response times.
+
+### 🛑 The Problem
+- **Bloated Token Costs & High Latency:** Dumping multi-page PDFs directly into LLM prompts causes astronomical token consumption, long wait times, and degraded retrieval accuracy.
+- **Hallucinations & Untraceable Claims:** Standard LLMs often invent facts when answering nuanced questions about dense legal, financial, or academic documents.
+- **Fragmented User Experience:** Juggling between a standalone PDF viewer and a separate AI chat window disrupts focus and slows down productivity.
+
+### 💡 Our Solution
+- **Strictly Grounded, Verifiable Answers:** Every answer is sourced directly from document chunks retrieved via ChromaDB and Maximal Marginal Relevance (MMR). If information is absent, the system explicitly states it rather than guessing.
+- **Sub-Second Groq LPU Inference:** Built on Groq's high-speed Language Processing Units (LPUs) running open-weight `gpt-oss-120b`, giving you instant answers.
+- **Dense Mistral Semantic Embeddings:** Employs `mistral-embed` for deep context understanding, accurately capturing conceptual matches regardless of phrasing differences.
+- **Unified Split-Pane Workspace:** A sleek Acrobat-inspired interface that houses the document viewer, page navigation, and conversational copilot with page citations (`[Page X]`) side-by-side.
+- **Document-Level Isolation:** Each document is segregated into its own isolated UUID vector space, guaranteeing that queries only retrieve context from the selected document.
 
 ---
 
